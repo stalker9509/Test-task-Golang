@@ -2,9 +2,9 @@ package handler
 
 import (
 	"Test-task-Golang/internal/handler"
+	"Test-task-Golang/internal/model/taskstruct"
 	"Test-task-Golang/internal/service"
 	mockservice "Test-task-Golang/internal/service/mocks"
-	"Test-task-Golang/internal/taskstruct"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -21,8 +21,8 @@ func TestCreateTask(t *testing.T) {
 
 	mockService := mockservice.NewMockService(ctrl)
 
-	services := service.Init(mockService)
-	handler := handler.Init(services)
+	services := service.NewService(mockService)
+	handler := handler.NewHandlerService(services)
 
 	router := gin.Default()
 	router.POST("/task", handler.CreatTask)
@@ -78,8 +78,8 @@ func TestGetTaskStatus(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockService := mockservice.NewMockService(ctrl)
-	services := service.Init(mockService)
-	handler := handler.Init(services)
+	services := service.NewService(mockService)
+	handler := handler.NewHandlerService(services)
 
 	router := gin.Default()
 	router.GET("/task/:id", handler.GetTask)

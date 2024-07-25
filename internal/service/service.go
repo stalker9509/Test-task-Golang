@@ -1,8 +1,8 @@
 package service
 
 import (
-	"Test-task-Golang/internal/taskorganize"
-	"Test-task-Golang/internal/taskstruct"
+	"Test-task-Golang/internal/model/taskstruct"
+	"Test-task-Golang/internal/service/taskorganize"
 )
 
 //go:generate mockgen -source=service.go -destination=mocks/mock.go
@@ -16,7 +16,7 @@ type service struct {
 	taskOrganize taskorganize.TaskOrganize
 }
 
-func Init(taskOrganize taskorganize.TaskOrganize) *service {
+func NewService(taskOrganize taskorganize.TaskOrganize) *service {
 	return &service{taskOrganize: taskOrganize}
 }
 

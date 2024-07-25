@@ -1,7 +1,7 @@
 package taskorganize
 
 import (
-	"Test-task-Golang/internal/taskstruct"
+	"Test-task-Golang/internal/model/taskstruct"
 	"errors"
 	"github.com/google/uuid"
 	"io"
@@ -31,7 +31,7 @@ type organize struct {
 
 var ErrorTaskNotFound = errors.New("task not found")
 
-func Init() *organize {
+func NewTaskOrganizeService() *organize {
 	return &organize{
 		taskQueue:    make(chan *taskstruct.Task, valueMaxGoroutine),
 		maxGoroutine: valueMaxGoroutine,

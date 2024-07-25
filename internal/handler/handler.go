@@ -1,8 +1,8 @@
 package handler
 
 import (
+	"Test-task-Golang/internal/model/taskstruct"
 	"Test-task-Golang/internal/service"
-	"Test-task-Golang/internal/taskstruct"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -11,7 +11,7 @@ type Handler struct {
 	service service.Service
 }
 
-func Init(service service.Service) *Handler {
+func NewHandlerService(service service.Service) *Handler {
 	return &Handler{service: service}
 }
 
