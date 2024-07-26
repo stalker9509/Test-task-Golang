@@ -10,7 +10,7 @@
 package mock_service
 
 import (
-	taskstruct "Test-task-Golang/internal/model"
+	taskstruct "Test-task-Golang/internal/taskstruct"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"
