@@ -10,11 +10,7 @@
 package mock_service
 
 import (
-<<<<<<< HEAD
-	taskstruct "Test-task-Golang/internal/taskstruct"
-=======
-	taskstruct "Test-task-Golang/internal/model/taskstruct"
->>>>>>> parent of ae44e24 (upgrade)
+	taskstruct "Test-task-Golang/internal/model"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"
