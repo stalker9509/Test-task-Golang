@@ -2,9 +2,9 @@ package handler
 
 import (
 	"Test-task-Golang/internal/handler"
+	"Test-task-Golang/internal/model"
 	"Test-task-Golang/internal/service"
 	mockservice "Test-task-Golang/internal/service/mocks"
-	"Test-task-Golang/internal/taskstruct"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -21,14 +21,14 @@ func TestCreateTask(t *testing.T) {
 
 	mockService := mockservice.NewMockService(ctrl)
 
-	services := service.Init(mockService)
-	handler := handler.Init(services)
+	services := service.NewService(mockService)
+	handler := handler.NewHandlerService(services)
 
 	router := gin.Default()
 	router.POST("/task", handler.CreatTask)
 
 	t.Run("Create task successfully", func(t *testing.T) {
-		task := &taskstruct.Task{Method: "GET", URL: "http://example.com"}
+		task := &model.Task{Method: "GET", URL: "http://example.com"}
 		mockService.EXPECT().Create(task).Return("1", nil)
 
 		body := strings.NewReader(`{"method":"GET","url":"http://example.com"}`)
@@ -57,7 +57,7 @@ func TestCreateTask(t *testing.T) {
 	})
 
 	t.Run("Create task with service error", func(t *testing.T) {
-		task := &taskstruct.Task{Method: "GET", URL: "http://example.com"}
+		task := &model.Task{Method: "GET", URL: "http://example.com"}
 		mockService.EXPECT().Create(task).Return("", errors.New("service error"))
 
 		body := strings.NewReader(`{"method":"GET","url":"http://example.com"}`)
@@ -78,14 +78,14 @@ func TestGetTaskStatus(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockService := mockservice.NewMockService(ctrl)
-	services := service.Init(mockService)
-	handler := handler.Init(services)
+	services := service.NewService(mockService)
+	handler := handler.NewHandlerService(services)
 
 	router := gin.Default()
 	router.GET("/task/:id", handler.GetTask)
 
 	t.Run("Get task status successfully", func(t *testing.T) {
-		taskStatus := &taskstruct.TaskStatus{ID: "1", Status: "done", HTTPStatusCode: 200}
+		taskStatus := &model.TaskStatus{ID: "1", Status: "done", HTTPStatusCode: 200}
 		mockService.EXPECT().Get("1").Return(taskStatus, nil)
 
 		req, _ := http.NewRequest("GET", "/task/1", nil)
