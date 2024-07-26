@@ -1,16 +1,26 @@
 package handler
 
 import (
-	"Test-task-Golang/internal/model"
+<<<<<<< HEAD
+	"Test-task-Golang/internal/service"
+	"Test-task-Golang/internal/taskstruct"
+=======
+	"Test-task-Golang/internal/model/taskstruct"
+	"Test-task-Golang/internal/service"
+>>>>>>> parent of ae44e24 (upgrade)
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type Handler struct {
-	service model.TaskService
+	service service.Service
 }
 
-func NewHandlerService(service model.TaskService) *Handler {
+<<<<<<< HEAD
+func Init(service service.Service) *Handler {
+=======
+func NewHandlerService(service service.Service) *Handler {
+>>>>>>> parent of ae44e24 (upgrade)
 	return &Handler{service: service}
 }
 
@@ -22,7 +32,7 @@ func (handler *Handler) InitRout() *gin.Engine {
 }
 
 func (handler *Handler) CreatTask(ctx *gin.Context) {
-	var task model.Task
+	var task taskstruct.Task
 	err := ctx.BindJSON(&task)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

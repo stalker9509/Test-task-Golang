@@ -1,13 +1,22 @@
 package taskorganize
 
 import (
-	"Test-task-Golang/internal/model"
+<<<<<<< HEAD:internal/taskorganize/taskorganize.go
+	"Test-task-Golang/internal/taskstruct"
+=======
+	"Test-task-Golang/internal/model/taskstruct"
+>>>>>>> parent of ae44e24 (upgrade):internal/service/taskorganize/taskorganize.go
 	"errors"
 	"github.com/google/uuid"
 	"io"
 	"net/http"
 	"sync"
 )
+
+type TaskOrganize interface {
+	Create(task *taskstruct.Task) (string, error)
+	Get(taskId string) (*taskstruct.TaskStatus, error)
+}
 
 const (
 	valueMaxGoroutine   = 5
@@ -17,8 +26,8 @@ const (
 )
 
 type organize struct {
-	tasks        map[string]*model.Task
-	taskQueue    chan *model.Task
+	tasks        map[string]*taskstruct.Task
+	taskQueue    chan *taskstruct.Task
 	mutex        sync.Mutex
 	WaitGroup    sync.WaitGroup
 	maxGoroutine int
@@ -26,19 +35,19 @@ type organize struct {
 
 var ErrorTaskNotFound = errors.New("task not found")
 
-func NewTaskOrganizeService() *organize {
+func Init() *organize {
 	return &organize{
-		taskQueue:    make(chan *model.Task, valueMaxGoroutine),
+		taskQueue:    make(chan *taskstruct.Task, valueMaxGoroutine),
 		maxGoroutine: valueMaxGoroutine,
-		tasks:        make(map[string]*model.Task),
+		tasks:        make(map[string]*taskstruct.Task),
 	}
 }
 
-func (manager *organize) Create(task *model.Task) (string, error) {
+func (manager *organize) Create(task *taskstruct.Task) (string, error) {
 	manager.mutex.Lock()
 	defer manager.mutex.Unlock()
 	id := uuid.NewString()
-	task.Status = &model.TaskStatus{
+	task.Status = &taskstruct.TaskStatus{
 		ID:     id,
 		Status: taskStatusInProcess,
 	}
@@ -49,7 +58,7 @@ func (manager *organize) Create(task *model.Task) (string, error) {
 	return id, nil
 }
 
-func (manager *organize) Get(taskID string) (*model.TaskStatus, error) {
+func (manager *organize) Get(taskID string) (*taskstruct.TaskStatus, error) {
 	manager.mutex.Lock()
 	defer manager.mutex.Unlock()
 	task, ok := manager.tasks[taskID]

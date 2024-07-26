@@ -2,9 +2,9 @@ package app
 
 import (
 	"Test-task-Golang/internal/handler"
+	"Test-task-Golang/internal/server"
 	"Test-task-Golang/internal/service"
-	"Test-task-Golang/internal/service/server"
-	"Test-task-Golang/internal/service/taskorganize"
+	"Test-task-Golang/internal/taskorganize"
 	"context"
 	"github.com/sirupsen/logrus"
 	"os"
@@ -13,15 +13,14 @@ import (
 )
 
 func Run() {
-	taskorganize := taskorganize.NewTaskOrganizeService()
-	service := service.NewService(taskorganize)
-	handler := handler.NewHandlerService(service)
-	server := server.NewServer(handler.InitRout())
-
+	taskorganize := taskorganize.Init()
+	service := service.Init(taskorganize)
+	handler := handler.Init(service)
+	server := new(server.Server)
 	go func() {
-		err := server.Run()
+		err := server.Run(handler.InitRout())
 		if err != nil {
-			logrus.Fatalf("error occurred while running http server: %s", err.Error())
+			logrus.Fatalf("error occured while running http server: %s", err.Error())
 		}
 	}()
 	logrus.Print("Server Started")
@@ -32,6 +31,6 @@ func Run() {
 	logrus.Print("Server Shutting Down")
 	err := server.Shutdown(context.Background())
 	if err != nil {
-		logrus.Errorf("error occurred on server shutting down: %s", err.Error())
+		logrus.Errorf("error occured on server shutting down: %s", err.Error())
 	}
 }

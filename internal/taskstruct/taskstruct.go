@@ -1,4 +1,4 @@
-package model
+package taskstruct
 
 type Task struct {
 	Method  string            `json:"method" binding:"required"`
