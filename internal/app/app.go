@@ -3,8 +3,6 @@ package app
 import (
 	"Test-task-Golang/internal/handler"
 	"Test-task-Golang/internal/service"
-	"Test-task-Golang/internal/service/server"
-	"Test-task-Golang/internal/service/taskorganize"
 	"context"
 	"github.com/sirupsen/logrus"
 	"os"
@@ -13,10 +11,9 @@ import (
 )
 
 func Run() {
-	taskorganize := taskorganize.NewTaskOrganizeService()
-	service := service.NewService(taskorganize)
-	handler := handler.NewHandlerService(service)
-	server := server.NewServer(handler.InitRout())
+	service := service.NewService()
+	handler := handler.NewHandlerService()
+	server := NewServer(handler.InitRout())
 
 	go func() {
 		err := server.Run()
@@ -28,7 +25,7 @@ func Run() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
-	taskorganize.WaitGroup.Wait()
+	service.WaitGroup.Wait()
 	logrus.Print("Server Shutting Down")
 	err := server.Shutdown(context.Background())
 	if err != nil {

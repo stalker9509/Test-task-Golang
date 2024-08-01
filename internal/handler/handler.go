@@ -2,6 +2,7 @@ package handler
 
 import (
 	"Test-task-Golang/internal/model"
+	"Test-task-Golang/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -10,7 +11,11 @@ type Handler struct {
 	service model.TaskService
 }
 
-func NewHandlerService(service model.TaskService) *Handler {
+func NewHandlerService() *Handler {
+	return InitService(service.NewService())
+}
+
+func InitService(service model.TaskService) *Handler {
 	return &Handler{service: service}
 }
 
