@@ -19,7 +19,7 @@ func TestCreateTask(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockService := mockservice.NewMockService(ctrl)
-	handler := handler.InitService(mockService)
+	handler := handler.NewHandlerService(mockService)
 
 	router := gin.Default()
 	router.POST("/task", handler.CreatTask)
@@ -75,7 +75,7 @@ func TestGetTaskStatus(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockService := mockservice.NewMockService(ctrl)
-	handler := handler.InitService(mockService)
+	handler := handler.NewHandlerService(mockService)
 
 	router := gin.Default()
 	router.GET("/task/:id", handler.GetTask)
