@@ -3,7 +3,6 @@ package handler
 import (
 	"Test-task-Golang/internal/handler"
 	"Test-task-Golang/internal/model"
-	"Test-task-Golang/internal/service"
 	mockservice "Test-task-Golang/internal/service/mocks"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -20,9 +19,7 @@ func TestCreateTask(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockService := mockservice.NewMockService(ctrl)
-
-	services := service.NewService(mockService)
-	handler := handler.NewHandlerService(services)
+	handler := handler.InitService(mockService)
 
 	router := gin.Default()
 	router.POST("/task", handler.CreatTask)
@@ -78,8 +75,7 @@ func TestGetTaskStatus(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockService := mockservice.NewMockService(ctrl)
-	services := service.NewService(mockService)
-	handler := handler.NewHandlerService(services)
+	handler := handler.InitService(mockService)
 
 	router := gin.Default()
 	router.GET("/task/:id", handler.GetTask)
