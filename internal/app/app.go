@@ -12,7 +12,7 @@ import (
 
 func Run() {
 	service := service.NewService()
-	handler := handler.NewHandlerService()
+	handler := handler.NewHandlerService(service)
 	server := NewServer(handler.InitRout())
 
 	go func() {
@@ -25,7 +25,6 @@ func Run() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
-	service.WaitGroup.Wait()
 	logrus.Print("Server Shutting Down")
 	err := server.Shutdown(context.Background())
 	if err != nil {
