@@ -56,9 +56,7 @@ func (manager *Service) worker() {
 }
 
 func (manager *Service) Shutdown(ctx context.Context) error {
-	go func() {
-		close(manager.taskQueue)
-	}()
+	close(manager.taskQueue)
 	select {
 	case <-manager.taskQueue:
 		logrus.Info("All workers finished")
