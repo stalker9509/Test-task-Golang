@@ -2,14 +2,11 @@ package service
 
 import (
 	"Test-task-Golang/internal/model"
-	"context"
 	"errors"
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"sync"
-	"time"
 )
 
 //go:generate mockgen -source=service.go -destination=mocks/mock.go
@@ -19,14 +16,13 @@ const (
 	taskStatusInProcess = "in process"
 	taskStatusError     = "error"
 	taskStatusDone      = "done"
-	httpClientTimeout   = 10 * time.Second
 )
 
 type Service struct {
 	tasks        map[string]*model.Task
 	taskQueue    chan *model.Task
-	mutex        sync.RWMutex
-	httpClient   *http.Client
+	mutex        sync.Mutex
+	WaitGroup    sync.WaitGroup
 	maxGoroutine int
 }
 
@@ -37,7 +33,6 @@ func NewService() *Service {
 		taskQueue:    make(chan *model.Task, valueMaxGoroutine),
 		maxGoroutine: valueMaxGoroutine,
 		tasks:        make(map[string]*model.Task),
-		httpClient:   &http.Client{Timeout: httpClientTimeout},
 	}
 	manager.startWorkers()
 	return manager
@@ -51,21 +46,7 @@ func (manager *Service) startWorkers() {
 
 func (manager *Service) worker() {
 	for task := range manager.taskQueue {
-		manager.executeTask(task)
-	}
-}
-
-func (manager *Service) Shutdown(ctx context.Context) error {
-	go func() {
-		close(manager.taskQueue)
-	}()
-	select {
-	case <-manager.taskQueue:
-		logrus.Info("All workers finished")
-		return nil
-	case <-ctx.Done():
-		logrus.Warn("Shutdown was not successful, not all workers finished")
-		return ctx.Err()
+		manager.ExecuteTask(task)
 	}
 }
 
@@ -83,8 +64,8 @@ func (manager *Service) Create(task *model.Task) (string, error) {
 }
 
 func (manager *Service) Get(taskID string) (*model.TaskStatus, error) {
-	manager.mutex.RLock()
-	defer manager.mutex.RUnlock()
+	manager.mutex.Lock()
+	defer manager.mutex.Unlock()
 	task, ok := manager.tasks[taskID]
 	if !ok {
 		return nil, ErrorTaskNotFound
@@ -92,7 +73,8 @@ func (manager *Service) Get(taskID string) (*model.TaskStatus, error) {
 	return task.Status, nil
 }
 
-func (manager *Service) executeTask(task *model.Task) {
+func (manager *Service) ExecuteTask(task *model.Task) {
+	client := &http.Client{}
 	request, err := http.NewRequest(task.Method, task.URL, nil)
 	if err != nil {
 		task.Status.Status = taskStatusError
@@ -101,7 +83,7 @@ func (manager *Service) executeTask(task *model.Task) {
 	for key, value := range task.Headers {
 		request.Header.Set(key, value)
 	}
-	response, err := manager.httpClient.Do(request)
+	response, err := client.Do(request)
 	if err != nil {
 		task.Status.Status = taskStatusError
 		return
