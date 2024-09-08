@@ -25,8 +25,15 @@ func Run() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
+
+	logrus.Info("Task service shutting down")
+	err := service.Shutdown(context.Background())
+	if err != nil {
+		logrus.Errorf("error occurred on service shutting down: %s", err.Error())
+	}
+
 	logrus.Print("Server Shutting Down")
-	err := server.Shutdown(context.Background())
+	err = server.Shutdown(context.Background())
 	if err != nil {
 		logrus.Errorf("error occurred on server shutting down: %s", err.Error())
 	}
