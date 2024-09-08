@@ -2,8 +2,10 @@ package service
 
 import (
 	"Test-task-Golang/internal/model"
+	"context"
 	"errors"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"sync"
@@ -50,6 +52,20 @@ func (manager *Service) startWorkers() {
 func (manager *Service) worker() {
 	for task := range manager.taskQueue {
 		manager.executeTask(task)
+	}
+}
+
+func (manager *Service) Shutdown(ctx context.Context) error {
+	go func() {
+		close(manager.taskQueue)
+	}()
+	select {
+	case <-manager.taskQueue:
+		logrus.Info("All workers finished")
+		return nil
+	case <-ctx.Done():
+		logrus.Warn("Shutdown was not successful, not all workers finished")
+		return ctx.Err()
 	}
 }
 
