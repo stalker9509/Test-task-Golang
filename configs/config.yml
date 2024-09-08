@@ -1,0 +1,9 @@
+server: ""
+
+db:
+  username: ""
+  host: ""
+  port: ""
+  password: ""
+  dbname: ""
+  sslmode: ""
