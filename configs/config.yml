@@ -1,9 +1,9 @@
-server: ""
+server: "localhost:3000"
 
 db:
-  username: ""
-  host: ""
-  port: ""
-  password: ""
-  dbname: ""
-  sslmode: ""
+  username: "postgres"
+  host: "localhost"
+  port: "5432"
+  password: "qwerty"
+  dbname: "postgres"
+  sslmode: "disable"

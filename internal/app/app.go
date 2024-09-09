@@ -31,7 +31,8 @@ func Run() {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
 
-	service := service.NewService()
+	repository := repository.NewRepository(db)
+	service := service.NewService(repository)
 	handler := handler.NewHandlerService(service)
 	server := NewServer(handler.InitRout())
 
