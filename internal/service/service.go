@@ -28,18 +28,21 @@ type Service struct {
 	mutex        sync.RWMutex
 	httpClient   *http.Client
 	maxGoroutine int
+	repository   model.TaskService
 }
 
 var ErrorTaskNotFound = errors.New("task not found")
 
-func NewService() *Service {
+func NewService(repository model.TaskService) *Service {
 	manager := &Service{
 		taskQueue:    make(chan *model.Task, valueMaxGoroutine),
 		maxGoroutine: valueMaxGoroutine,
 		tasks:        make(map[string]*model.Task),
 		httpClient:   &http.Client{Timeout: httpClientTimeout},
+		repository:   repository,
 	}
 	manager.startWorkers()
+
 	return manager
 }
 
@@ -78,11 +81,15 @@ func (manager *Service) Create(task *model.Task) (string, error) {
 		Status: taskStatusInProcess,
 	}
 	manager.tasks[id] = task
+	id, err := manager.repository.Create(task)
+	if err != nil {
+		return "", err
+	}
 	manager.taskQueue <- task
 	return id, nil
 }
 
-func (manager *Service) Get(taskID string) (*model.TaskStatus, error) {
+/*func (manager *Service) Get(taskID string) (*model.TaskStatus, error) {
 	manager.mutex.RLock()
 	defer manager.mutex.RUnlock()
 	task, ok := manager.tasks[taskID]
@@ -90,12 +97,17 @@ func (manager *Service) Get(taskID string) (*model.TaskStatus, error) {
 		return nil, ErrorTaskNotFound
 	}
 	return task.Status, nil
+}*/
+
+func (manager *Service) Get(taskID string) (*model.TaskStatus, error) {
+	return manager.repository.Get(taskID)
 }
 
 func (manager *Service) executeTask(task *model.Task) {
 	request, err := http.NewRequest(task.Method, task.URL, nil)
 	if err != nil {
 		task.Status.Status = taskStatusError
+		manager.updateTaskStatus(task)
 		return
 	}
 	for key, value := range task.Headers {
@@ -104,6 +116,7 @@ func (manager *Service) executeTask(task *model.Task) {
 	response, err := manager.httpClient.Do(request)
 	if err != nil {
 		task.Status.Status = taskStatusError
+		manager.updateTaskStatus(task)
 		return
 	}
 	defer response.Body.Close()
@@ -116,8 +129,26 @@ func (manager *Service) executeTask(task *model.Task) {
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		task.Status.Status = taskStatusError
+		manager.updateTaskStatus(task)
 		return
 	}
 	task.Status.Length = len(body)
 	task.Status.Status = taskStatusDone
+	manager.updateTaskStatus(task)
+}
+
+func (manager *Service) Update(task *model.Task) error {
+	err := manager.repository.Update(task)
+	if err != nil {
+		logrus.Errorf("Failed to update task: %v", err)
+		return err
+	}
+	return nil
+}
+
+func (manager *Service) updateTaskStatus(task *model.Task) {
+	err := manager.repository.Update(task)
+	if err != nil {
+		logrus.Errorf("Failed to update task status: %v", err)
+	}
 }
