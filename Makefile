@@ -19,17 +19,17 @@ docker-build:
 	@docker build -t $(BINARY_NAME) .
 
 postgres-up:
-	@docker run --name=test-task-db -e POSTGRES_PASSWORD=${DB_PASSWORD} -p 5432:5432 -d postgres
+	@docker run --name=test-task-db -e POSTGRES_PASSWORD=1111 -p 5432:5432 -d postgres
 
 postgres-down:
 	@docker stop test-task-db
 	@docker rm test-task-db
 
 migrate-up:
-	@migrate -path ./migration -database "postgres://postgres:${DB_PASSWORD}@localhost:5432/postgres?sslmode=disable" up
+	@migrate -path ./migration -database "postgres://postgres:1111@localhost:5432/postgres?sslmode=disable" up
 
 migrate-down:
-	@migrate -path ./migration -database "postgres://postgres:${DB_PASSWORD}@localhost:5432/postgres?sslmode=disable" down
+	@migrate -path ./migration -database "postgres://postgres:1111@localhost:5432/postgres?sslmode=disable" down
 
 clean:
 	@go clean

@@ -16,7 +16,7 @@ func NewRepository(db *sqlx.DB) *Repository {
 }
 
 func (repository *Repository) Create(task *model.Task) (string, error) {
-	headerJSON, err := json.Marshal(task.Headers)
+	headerJSON, err := json.Marshal(task.Status.Headers)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal headers: %w", err)
 	}

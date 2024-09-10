@@ -3,7 +3,6 @@ package service
 import (
 	"Test-task-Golang/internal/model"
 	"context"
-	"errors"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"io"
@@ -23,7 +22,6 @@ const (
 )
 
 type Service struct {
-	tasks        map[string]*model.Task
 	taskQueue    chan *model.Task
 	mutex        sync.RWMutex
 	httpClient   *http.Client
@@ -31,13 +29,10 @@ type Service struct {
 	repository   model.TaskService
 }
 
-var ErrorTaskNotFound = errors.New("task not found")
-
 func NewService(repository model.TaskService) *Service {
 	manager := &Service{
 		taskQueue:    make(chan *model.Task, valueMaxGoroutine),
 		maxGoroutine: valueMaxGoroutine,
-		tasks:        make(map[string]*model.Task),
 		httpClient:   &http.Client{Timeout: httpClientTimeout},
 		repository:   repository,
 	}
@@ -71,14 +66,11 @@ func (manager *Service) Shutdown(ctx context.Context) error {
 }
 
 func (manager *Service) Create(task *model.Task) (string, error) {
-	manager.mutex.Lock()
-	defer manager.mutex.Unlock()
 	id := uuid.NewString()
 	task.Status = &model.TaskStatus{
 		ID:     id,
 		Status: taskStatusInProcess,
 	}
-	manager.tasks[id] = task
 	id, err := manager.repository.Create(task)
 	if err != nil {
 		return "", err
