@@ -10,9 +10,9 @@ type Server struct {
 	httpServer *http.Server
 }
 
-func NewServer(handler http.Handler) *Server {
+func NewServer(handler http.Handler, server string) *Server {
 	return &Server{httpServer: &http.Server{
-		Addr:         "localhost:3000",
+		Addr:         server,
 		Handler:      handler,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second},
