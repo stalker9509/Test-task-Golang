@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: test-task-db
+    network_mode: host
+    environment:
+      POSTGRES_PASSWORD: '1111'
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: test-task
+    network_mode: host
+    depends_on:
+      - postgres
+    environment:
+      db.host: 'postgres'
+      db.port: '5432'
+      db.username: 'postgres'
+      db.password: '1111'
+      db.dbname: 'postgres'
+      db.sslmode: 'disable'
+    ports:
+      - "3000:3000"
+
+  migrate:
+    image: migrate/migrate
+    network_mode: host
+    volumes:
+      - ./migrations:/migrations
+    command: [ "-path", "/migrations", "-database",  "postgres://postgres:1111@localhost:5432/postgres?sslmode=disable", "up" ]
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
