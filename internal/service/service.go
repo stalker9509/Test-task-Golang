@@ -87,16 +87,6 @@ func (manager *Service) Create(task *model.Task) (string, error) {
 	return id, nil
 }
 
-/*func (manager *Service) Get(taskID string) (*model.TaskStatus, error) {
-	manager.mutex.RLock()
-	defer manager.mutex.RUnlock()
-	task, ok := manager.tasks[taskID]
-	if !ok {
-		return nil, ErrorTaskNotFound
-	}
-	return task.Status, nil
-}*/
-
 func (manager *Service) Get(taskID string) (*model.TaskStatus, error) {
 	return manager.repository.Get(taskID)
 }
